@@ -23,7 +23,8 @@ public class SecretSantaBot {
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
         builder.disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS);
         builder.setEnabledIntents(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-                GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS);
+                GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.GUILD_MEMBERS);
 
         builder.addEventListeners(new SlashCommands());
 
@@ -36,12 +37,22 @@ public class SecretSantaBot {
                 Commands.slash("add-user", "Add a user to the secret santa.")
                         .addOption(OptionType.USER, "user", "The user to add.", true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
-                Commands.slash("start", "Start the secret santa.")
+                Commands.slash("remove-user", "Remove a user from the secret santa.")
+                        .addOption(OptionType.USER, "user", "The user to remove.", true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
                 Commands.slash("set-date", "Set the deadline date for the secret santa.")
                         .addOption(OptionType.STRING, "date", "Format: dd/mm/yyyy", true)
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
+                Commands.slash("start", "Start the secret santa.")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
+                Commands.slash("resend-failed", "Resend the failed DMs to the participants.")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS))
         ).queue();
 
     }
+
+    public static JDA getJDA() {
+        return jda;
+    }
+
 }

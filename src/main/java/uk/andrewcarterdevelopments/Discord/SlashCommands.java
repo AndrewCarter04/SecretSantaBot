@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,9 +29,49 @@ public class SlashCommands extends ListenerAdapter {
 
         else if (event.getName().equals("start")) {
 
-            gameManager.start();
+            if (!gameManager.hasStarted()) {
 
-            event.reply("Starting game!").queue();
+                event.deferReply().queue();
+
+                List failedUsers = gameManager.start();
+                String msg = "Game Started!";
+
+                if (failedUsers.getItemCount() != 0) {
+                    msg += "\n\nFailed to DM the following users:";
+                    for (String failedUser : failedUsers.getItems()) {
+                        msg += "\n" + failedUser;
+                    }
+                }
+
+                event.getHook().sendMessage(msg).queue();
+
+            } else {
+                event.reply("The game has already started, you cannot start it again.").queue();
+            }
+
+        }
+
+        else if (event.getName().equals("resend-failed")) {
+
+            if (gameManager.hasStarted()) {
+
+                event.deferReply().queue();
+
+                List failedUsers = gameManager.resendFailed();
+                String msg = "Attempted to resend failed messages.";
+
+                if (failedUsers.getItemCount() != 0) {
+                    msg += "\n\nStill failed to DM the following users:";
+                    for (String failedUser : failedUsers.getItems()) {
+                        msg += "\n" + failedUser;
+                    }
+                }
+
+                event.getHook().sendMessage(msg).queue();
+
+            } else {
+                event.reply("The game has not started yet.").queue();
+            }
 
         }
 
@@ -42,10 +83,26 @@ public class SlashCommands extends ListenerAdapter {
 
                 gameManager.addUser(user.getId());
 
-                event.reply(String.format("Sucessfully added {0}!", user.getGlobalName())).queue();
+                event.reply("Successfully added " + user.getGlobalName() + "!").queue();
 
             } else {
                 event.reply("The game has already started, you cannot add any more users to it.").queue();
+            }
+
+        }
+
+        else if (event.getName().equals("remove-user")) {
+
+            if (!gameManager.hasStarted()) {
+
+                User user = event.getOption("user").getAsUser();
+
+                gameManager.removeUser(user.getId());
+
+                event.reply("Successfully removed " + user.getGlobalName() + "!").queue();
+
+            } else {
+                event.reply("The game has already started, you cannot remove any users from it.").queue();
             }
 
         }
@@ -65,9 +122,9 @@ public class SlashCommands extends ListenerAdapter {
                     return;
                 }
 
-                gameManager.setDate(date);
+                gameManager.setDueDate(date);
 
-                event.reply(String.format("Set the date to {0}!", dateStr)).queue();
+                event.reply("Set the date to " + dateStr + "!").queue();
 
             } else {
                 event.reply("The game has already started, you cannot add any more users to it.").queue();

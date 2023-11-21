@@ -39,3 +39,4 @@ build/
 
 # Private stuff, like bot tokens
 **/Private.java
+**/data/
