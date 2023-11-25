@@ -36,3 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Private stuff, like bot tokens
+**/Private.java
+**/data/
