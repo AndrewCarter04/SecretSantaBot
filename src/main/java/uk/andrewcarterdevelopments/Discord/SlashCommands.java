@@ -83,7 +83,7 @@ public class SlashCommands extends ListenerAdapter {
 
                 gameManager.addUser(user.getId());
 
-                event.reply("Successfully added " + user.getGlobalName() + "!").queue();
+                event.reply("Successfully added " + user.getName() + "!").queue();
 
             } else {
                 event.reply("The game has already started, you cannot add any more users to it.").queue();

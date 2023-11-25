@@ -21,6 +21,20 @@ import java.util.Random;
 public class GameManager {
 
     private final String FILE_PATH = "data/secretsanta.json";
+    private final String NAME_CONVERSION_PATH = "data/names.json";
+
+    private String getNameConversion(String userID) {
+        File jsonFile = new File(NAME_CONVERSION_PATH);
+        if (!jsonFile.getParentFile().exists()) {
+            jsonFile.getParentFile().mkdirs();
+        }
+        try (FileReader reader = new FileReader(NAME_CONVERSION_PATH)) {
+            return new JSONObject(new JSONTokener(reader)).getString(userID);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
 
     private JSONObject readJSONObject() {
         File jsonFile = new File(FILE_PATH);
@@ -121,7 +135,7 @@ public class GameManager {
         builder.setColor(Color.red);
         builder.setThumbnail("https://cdn-icons-png.flaticon.com/512/6235/6235092.png");
         builder.setTitle("You are buying for...");
-        builder.addField(user.getName(), user.getAsMention(), false); //.getGlobalName
+        builder.addField(getNameConversion(user.getId()) + " (" + user.getName() + ")", user.getAsMention(), false); //.getGlobalName
         builder.addBlankField(false);
         builder.addField("Reveal by date", ukFormat.format(getDueDate()), false);
         builder.addBlankField(false);
