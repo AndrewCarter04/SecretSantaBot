@@ -10,6 +10,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * @author Andrew Carter
+ */
 public class SlashCommands extends ListenerAdapter {
 
     private GameManager gameManager;
@@ -21,13 +24,7 @@ public class SlashCommands extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
-        if (event.getName().equals("testing")) {
-
-            event.reply("Testing!").queue();
-
-        }
-
-        else if (event.getName().equals("start")) {
+        if (event.getName().equals("start")) {
 
             if (!gameManager.hasStarted()) {
 
@@ -47,6 +44,20 @@ public class SlashCommands extends ListenerAdapter {
 
             } else {
                 event.reply("The game has already started, you cannot start it again.").queue();
+            }
+
+        }
+
+        else if (event.getName().equals("end")) {
+
+            if (gameManager.hasStarted()) {
+
+                gameManager.end();
+
+                event.reply("Game Ended!").queue();
+
+            } else {
+                event.reply("The game hasn't started, you cannot end it.").queue();
             }
 
         }

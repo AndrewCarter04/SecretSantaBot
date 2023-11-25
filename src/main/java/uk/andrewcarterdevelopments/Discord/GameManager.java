@@ -18,24 +18,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+/**
+ * @author Andrew Carter
+ */
 public class GameManager {
 
     private final String FILE_PATH = "data/secretsanta.json";
-    private final String NAME_CONVERSION_PATH = "data/names.json";
 
-    private String getNameConversion(String userID) {
-        File jsonFile = new File(NAME_CONVERSION_PATH);
-        if (!jsonFile.getParentFile().exists()) {
-            jsonFile.getParentFile().mkdirs();
-        }
-        try (FileReader reader = new FileReader(NAME_CONVERSION_PATH)) {
-            return new JSONObject(new JSONTokener(reader)).getString(userID);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return null;
-        }
-    }
-
+    /**
+     * Read the whole JSON Object from the file.
+     * @return The file contents as a JSONObject
+     */
     private JSONObject readJSONObject() {
         File jsonFile = new File(FILE_PATH);
         if (!jsonFile.getParentFile().exists()) {
@@ -49,6 +42,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Set data inside the JSON file, and save it
+     * @param key   The key for the data
+     * @param data  The data itself
+     */
     private void set(String key, Object data) {
         JSONObject json = readJSONObject();
         json.put(key, data);
@@ -59,6 +57,10 @@ public class GameManager {
         }
     }
 
+    /**
+     * Remove data from the JSON file, using the key
+     * @param key   The key for the data to remove
+     */
     private void remove(String key) {
         JSONObject json = readJSONObject();
         json.remove(key);
@@ -69,20 +71,37 @@ public class GameManager {
         }
     }
 
+    /**
+     * Get data from the JSON file, using the key
+     * @param key   The key for the data to get
+     * @return  The data itself
+     */
     private Object get(String key) {
         return readJSONObject().get(key);
     }
 
+    /**
+     * Get if the JSON file contains data for the provided key
+     * @param key   The key to check
+     * @return  If the JSON file contains anything with the specified key
+     */
     private boolean contains(String key) {
         return readJSONObject().has(key);
     }
 
 
-
+    /**
+     * Get if the game has started
+     * @return  If the game has started
+     */
     public boolean hasStarted() {
         return contains("game");
     }
 
+    /**
+     * Add a user to the game
+     * @param userID    ID of the user to add
+     */
     public void addUser(String userID) {
         JSONArray users;
         if (contains("users")) {
@@ -94,6 +113,10 @@ public class GameManager {
         set("users", users);
     }
 
+    /**
+     * Remove a user from the game
+     * @param userID    ID of the user to remove
+     */
     public void removeUser(String userID) {
         JSONArray users;
         if (contains("users")) {
@@ -107,15 +130,27 @@ public class GameManager {
         set("users", users);
     }
 
+    /**
+     * Get all the users in the game
+     * @return  An array of all the user IDs in the game
+     */
     private String[] getUsers() {
         JSONArray users = (JSONArray) get("users");
         return users.toList().stream().map(Object::toString).toArray(String[]::new);
     }
 
+    /**
+     * Set the due date for the game
+     * @param date  The due date for the game
+     */
     public void setDueDate(Date date) {
         set("due-date", date);
     }
 
+    /**
+     * Get the due date for the game
+     * @return  The due date for the game
+     */
     private Date getDueDate() {
         String strDate = get("due-date").toString();
         SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
@@ -126,6 +161,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Get the embedded message to send the user for when the game is starting
+     * @param user  The User the message will be sent to
+     * @return  The MessageEmbed containing the data to be sent
+     */
     private MessageEmbed getUserStartDM(User user) {
 
         DateFormat ukFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -135,7 +175,7 @@ public class GameManager {
         builder.setColor(Color.red);
         builder.setThumbnail("https://cdn-icons-png.flaticon.com/512/6235/6235092.png");
         builder.setTitle("You are buying for...");
-        builder.addField(getNameConversion(user.getId()) + " (" + user.getName() + ")", user.getAsMention(), false); //.getGlobalName
+        builder.addField(user.getName(), user.getAsMention(), false); //.getGlobalName
         builder.addBlankField(false);
         builder.addField("Reveal by date", ukFormat.format(getDueDate()), false);
         builder.addBlankField(false);
@@ -144,6 +184,10 @@ public class GameManager {
         return builder.build();
     }
 
+    /**
+     * Start the game
+     * @return  The List of user IDs the bot failed to DM
+     */
     public List start() {
 
         set("start-date", new Date());
@@ -206,6 +250,21 @@ public class GameManager {
 
     }
 
+    /**
+     * End the game
+     */
+    public void end() {
+
+        if (contains("game")) {
+            remove("game");
+        }
+
+    }
+
+    /**
+     * Resend the previously failed messages from when the game started
+     * @return  The List of user IDs the bot failed to DM
+     */
     public List resendFailed() {
 
         JSONObject game = (JSONObject) get("game");
@@ -236,6 +295,10 @@ public class GameManager {
 
     }
 
+    /**
+     * Randomly shuffle an array
+     * @param array Array to shuffle
+     */
     private void shuffleArray(String[] array) {
         Random random = new Random();
         for (int i = array.length - 1; i > 0; i--) {
@@ -246,6 +309,12 @@ public class GameManager {
         }
     }
 
+    /**
+     * Check if 2 arrays contain a same value at the same position in the arrays
+     * @param array1    The first array
+     * @param array2    The second array
+     * @return  If the arrays contain a same value at the same position in the arrays
+     */
     private boolean containsSameIndex(String[] array1, String[] array2) {
         boolean sameIndex = false;
         for (int i = 0; i < array1.length; i++) {

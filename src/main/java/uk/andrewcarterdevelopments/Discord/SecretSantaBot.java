@@ -11,6 +11,9 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+/**
+ * @author Andrew Carter
+ */
 public class SecretSantaBot {
 
     private static JDA jda;
@@ -33,7 +36,6 @@ public class SecretSantaBot {
         jda.awaitReady();
 
         jda.updateCommands().addCommands(
-                Commands.slash("testing", "Testing command."),
                 Commands.slash("add-user", "Add a user to the secret santa.")
                         .addOption(OptionType.USER, "user", "The user to add.", true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
@@ -44,6 +46,8 @@ public class SecretSantaBot {
                         .addOption(OptionType.STRING, "date", "Format: dd/mm/yyyy", true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
                 Commands.slash("start", "Start the secret santa.")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
+                Commands.slash("end", "End the secret santa.")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS)),
                 Commands.slash("resend-failed", "Resend the failed DMs to the participants.")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL, Permission.MODERATE_MEMBERS))
